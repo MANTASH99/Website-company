@@ -4,7 +4,8 @@ import '../widgets/header_widget.dart';
 import '../widgets/hero_section.dart';
 import '../widgets/services_section.dart';
 import '../widgets/process_section.dart';
-import '../widgets/products_section.dart';
+// import '../widgets/products_section.dart'; // REMOVE THIS LINE
+// import '../widgets/proof_of_work_section.dart'; // If such a widget exists, remove or comment it out
 import '../widgets/footer_widget.dart';
 import '../theme.dart';
 
@@ -43,8 +44,8 @@ class _LandingPageState extends State<LandingPage> {
               // Process Section
               ProcessSection(),
               
-              // Products Section
-              ProductsSection(),
+              // ProductsSection(), // REMOVE THIS LINE
+              // ProofOfWorkSection(), // REMOVE IF PRESENT
               
               // Footer
               FooterWidget(),

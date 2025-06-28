@@ -78,6 +78,18 @@ class ServiceData {
           'Custom Dataset Creation',
         ],
       ),
+      const ServiceModel(
+        title: 'AI Agents',
+        description: 'Autonomous agents to automate business tasks with no human intervention, improving efficiency and scalability.',
+        icon: 'smart_toy',
+        isPrimary: false,
+        features: [
+          'End-to-end Task Automation',
+          'Seamless Integration with Apps & Workflows',
+          'Continuous Learning & Optimization',
+          'Enterprise-grade Security & Reliability',
+        ],
+      ),
     ];
   }
 

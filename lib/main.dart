@@ -13,6 +13,7 @@ import 'pages/impressum_page.dart';
 import 'pages/text_annotation_page.dart';
 import 'pages/computer_vision_page.dart';
 import 'pages/3d_annotation_page.dart';
+import 'pages/ai_agents_page.dart';
 
 void main() {
   
@@ -52,6 +53,7 @@ class ImplementAIApp extends StatelessWidget {
         '/text-annotation': (context) => const TextAnnotationPage(),
         '/computer-vision': (context) => const ComputerVisionPage(),
         '/3d-annotation': (context) => const ThreeDAnnotationPage(),
+        '/ai-agents': (context) => const AiAgentsPage(),
       },
     );
   }

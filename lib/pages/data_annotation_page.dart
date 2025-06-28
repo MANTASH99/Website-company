@@ -31,41 +31,31 @@ class _DataAnnotationPageState extends State<DataAnnotationPage> {
     
     return Scaffold(
       backgroundColor: colorScheme.surface,
-      body: ResponsiveScaledBox(
-        width: ResponsiveValue<double>(
-          context,
-          conditionalValues: [
-            const Condition.equals(name: MOBILE, value: 450),
-            const Condition.equals(name: TABLET, value: 800),
-            const Condition.largerThan(name: TABLET, value: 1200),
-          ],
-        ).value,
-        child: CustomScrollView(
-          controller: _scrollController,
-          slivers: [
-            const SliverToBoxAdapter(
-              child: DataAnnotationHeader(),
+      body: CustomScrollView(
+        controller: _scrollController,
+        slivers: [
+          const SliverToBoxAdapter(
+            child: DataAnnotationHeader(),
+          ),
+          const SliverToBoxAdapter(
+            child: DataAnnotationHero(),
+          ),
+          const SliverToBoxAdapter(
+            child: DataAnnotationDescription(),
+          ),
+          SliverToBoxAdapter(
+            child: Container(
+              margin: const EdgeInsets.symmetric(vertical: 40),
+              child: const ProcessSection(),
             ),
-            const SliverToBoxAdapter(
-              child: DataAnnotationHero(),
-            ),
-            const SliverToBoxAdapter(
-              child: DataAnnotationDescription(),
-            ),
-            SliverToBoxAdapter(
-              child: Container(
-                margin: const EdgeInsets.symmetric(vertical: 40),
-                child: const ProcessSection(),
-              ),
-            ),
-            const SliverToBoxAdapter(
-              child: DataAnnotationServices(),
-            ),
-            const SliverToBoxAdapter(
-              child: FooterWidget(),
-            ),
-          ],
-        ),
+          ),
+          const SliverToBoxAdapter(
+            child: DataAnnotationServices(),
+          ),
+          const SliverToBoxAdapter(
+            child: FooterWidget(),
+          ),
+        ],
       ),
       floatingActionButton: _buildScrollToTopButton(context),
     );

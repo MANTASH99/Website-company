@@ -22,7 +22,7 @@ class _ServicesSectionState extends State<ServicesSection> {
     final size = MediaQuery.of(context).size;
     final isDesktop = size.width > 1024;
     final isTablet = size.width > 768;
-    
+
     final services = ServiceData.getServices();
 
     return Container(
@@ -54,9 +54,7 @@ class _ServicesSectionState extends State<ServicesSection> {
                     end: 0,
                     duration: 600.ms,
                   ),
-                  
                   const SizedBox(height: 16),
-                  
                   Text(
                     'Comprehensive AI solutions designed to accelerate your business transformation and unlock the power of intelligent data processing.',
                     style: textTheme.titleMedium?.copyWith(
@@ -75,26 +73,24 @@ class _ServicesSectionState extends State<ServicesSection> {
                 ],
               ),
             ),
-            
             SizedBox(height: isDesktop ? 80 : 48),
-            
             // Services Grid
             LayoutBuilder(
               builder: (context, constraints) {
                 int crossAxisCount;
                 double childAspectRatio;
-                
+
                 if (constraints.maxWidth > 1200) {
                   crossAxisCount = 2;
-                  childAspectRatio = 1.1;
+                  childAspectRatio = 1.3; // was 1.1, now more compact
                 } else if (constraints.maxWidth > 768) {
                   crossAxisCount = 2;
-                  childAspectRatio = 0.9;
+                  childAspectRatio = 1.1; // was 0.9
                 } else {
                   crossAxisCount = 1;
-                  childAspectRatio = 0.8;
+                  childAspectRatio = 0.9; // was 0.8
                 }
-                
+
                 return GridView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
@@ -109,14 +105,13 @@ class _ServicesSectionState extends State<ServicesSection> {
                     return ServiceCard(
                       service: services[index],
                       index: index,
+                      onNavigate: _navigateToService,
                     );
                   },
                 );
               },
             ),
-            
             SizedBox(height: isDesktop ? 60 : 40),
-            
             // CTA Section
             Container(
               width: double.infinity,
@@ -165,7 +160,6 @@ class _ServicesSectionState extends State<ServicesSection> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       if (isTablet) ...[
-                        // Get Started button with services dropdown
                         _buildDropdownButton(
                           context,
                           'Get Started',
@@ -177,7 +171,6 @@ class _ServicesSectionState extends State<ServicesSection> {
                           _buildServicesDropdown(context, _isGetStartedHovered),
                         ),
                         const SizedBox(width: 16),
-                        // Schedule Call button with services dropdown
                         _buildDropdownButton(
                           context,
                           'Schedule Call',
@@ -303,7 +296,6 @@ class _ServicesSectionState extends State<ServicesSection> {
                     ),
                   ),
                 ),
-          // Dropdown positioned below button
           if (isHovered)
             Positioned(
               top: 60,
@@ -319,7 +311,7 @@ class _ServicesSectionState extends State<ServicesSection> {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final services = ServiceData.getServices();
-    
+
     return AnimatedOpacity(
       duration: const Duration(milliseconds: 200),
       opacity: isVisible ? 1.0 : 0.0,
@@ -409,7 +401,7 @@ class _ServicesSectionState extends State<ServicesSection> {
   Widget _buildDropdownServiceItem(BuildContext context, ServiceModel service) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    
+
     return InkWell(
       onTap: () => _navigateToService(context, service),
       borderRadius: BorderRadius.circular(8),
@@ -435,12 +427,33 @@ class _ServicesSectionState extends State<ServicesSection> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    service.title,
-                    style: textTheme.labelMedium?.copyWith(
-                      color: colorScheme.onSurface,
-                      fontWeight: FontWeight.w600,
-                    ),
+                  Row(
+                    children: [
+                      Text(
+                        service.title,
+                        style: textTheme.labelMedium?.copyWith(
+                          color: colorScheme.onSurface,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      if (service.title.trim().toLowerCase() == 'ai agents')
+                        Container(
+                          margin: const EdgeInsets.only(left: 8),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: colorScheme.secondary,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            "New",
+                            style: textTheme.labelSmall?.copyWith(
+                              color: colorScheme.onSecondary,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -480,6 +493,9 @@ class _ServicesSectionState extends State<ServicesSection> {
       case 'Data Acquisition & Generation':
         Navigator.of(context).pushNamed('/ai-data-acquisition');
         break;
+      case 'AI Agents':
+        Navigator.of(context).pushNamed('/ai-agents');
+        break;
       default:
         Navigator.of(context).pushNamed('/book-demo');
         break;
@@ -490,6 +506,8 @@ class _ServicesSectionState extends State<ServicesSection> {
     switch (iconName) {
       case 'label':
         return Icons.label;
+      case 'smart_toy':
+        return Icons.smart_toy;
       case 'apps':
         return Icons.apps;
       case 'support_agent':

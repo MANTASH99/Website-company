@@ -1,10 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-
+import 'package:video_player/video_player.dart';
 import '../theme.dart';
 
-class DataAnnotationHero extends StatelessWidget {
+class DataAnnotationHero extends StatefulWidget {
   const DataAnnotationHero({super.key});
+
+  @override
+  State<DataAnnotationHero> createState() => _DataAnnotationHeroState();
+}
+
+class _DataAnnotationHeroState extends State<DataAnnotationHero> {
+  late VideoPlayerController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = VideoPlayerController.network(
+      "https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4",
+    )..initialize().then((_) {
+        setState(() {});
+        _controller.setLooping(true);
+        _controller.setVolume(0);
+        _controller.play();
+      });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -12,103 +38,118 @@ class DataAnnotationHero extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final screenSize = MediaQuery.of(context).size;
     final isDesktop = screenSize.width > 800;
+    final heroHeight = isDesktop ? 400.0 : 300.0;
 
-    return Container(
-      height: isDesktop ? 400 : 300,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        image: DecorationImage(
-          image: NetworkImage(
-            "https://pixabay.com/get/g60162f4453f429521f6d0d2471da8e7ce7d0c869a54e103af018922b44a25fd4340b353631d7712a2d7ae8d64c3cfbb941b48f0befb0cccb6160a199e0eb186d_1280.jpg",
-          ),
-          fit: BoxFit.cover,
-        ),
-      ),
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Colors.black.withOpacity(0.6),
-              Colors.black.withOpacity(0.4),
-              Colors.black.withOpacity(0.7),
-            ],
-          ),
-        ),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Main Title
-              Text(
-                'DATA ANNOTATION',
-                style: textTheme.displayMedium?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 2.0,
-                  shadows: [
-                    Shadow(
-                      color: Colors.black.withOpacity(0.5),
-                      offset: const Offset(0, 2),
-                      blurRadius: 4,
-                    ),
+    return ClipRRect(
+      borderRadius: BorderRadius.zero,
+      child: SizedBox(
+        width: double.infinity,
+        height: heroHeight,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            // Video background
+            if (_controller.value.isInitialized)
+              FittedBox(
+                fit: BoxFit.cover,
+                child: SizedBox(
+                  width: _controller.value.size.width,
+                  height: _controller.value.size.height,
+                  child: VideoPlayer(_controller),
+                ),
+              )
+            else
+              Container(color: colorScheme.surface),
+            // Overlay gradient for readability
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.black.withOpacity(0.6),
+                    Colors.black.withOpacity(0.4),
+                    Colors.black.withOpacity(0.7),
                   ],
                 ),
-                textAlign: TextAlign.center,
-              ).animate()
-                .fadeIn(duration: 800.ms)
-                .slideY(begin: 0.3, end: 0, duration: 800.ms, curve: Curves.easeOut),
-
-              const SizedBox(height: 16),
-
-              // Subtitle
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                decoration: BoxDecoration(
-                  color: colorScheme.primary.withOpacity(0.9),
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Text(
-                  'TRANSFORM RAW DATA INTO AI-READY INSIGHTS',
-                  style: textTheme.titleMedium?.copyWith(
-                    color: colorScheme.onPrimary,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 1.0,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ).animate()
-                .fadeIn(duration: 800.ms, delay: 400.ms)
-                .slideY(begin: 0.3, end: 0, duration: 800.ms, delay: 400.ms, curve: Curves.easeOut)
-                .shimmer(duration: 2000.ms, delay: 1200.ms),
-
-              const SizedBox(height: 24),
-
-              // Animated indicators
-              Row(
+              ),
+            ),
+            // Foreground content
+            Center(
+              child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _buildIndicator(context, Icons.image_outlined, 'Images'),
-                  const SizedBox(width: 24),
-                  _buildIndicator(context, Icons.videocam_outlined, 'Videos'),
-                  const SizedBox(width: 24),
-                  _buildIndicator(context, Icons.text_fields_outlined, 'Text'),
-                  const SizedBox(width: 24),
-                  _buildIndicator(context, Icons.audiotrack_outlined, 'Audio'),
+                  // Main Title
+                  Text(
+                    'DATA ANNOTATION',
+                    style: textTheme.displayMedium?.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 2.0,
+                      shadows: [
+                        Shadow(
+                          color: Colors.black.withOpacity(0.5),
+                          offset: const Offset(0, 2),
+                          blurRadius: 4,
+                        ),
+                      ],
+                    ),
+                    textAlign: TextAlign.center,
+                  ).animate()
+                    .fadeIn(duration: 800.ms)
+                    .slideY(begin: 0.3, end: 0, duration: 800.ms, curve: Curves.easeOut),
+
+                  const SizedBox(height: 16),
+
+                  // Subtitle
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: colorScheme.primary.withOpacity(0.9),
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.2),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Text(
+                      'TRANSFORM RAW DATA INTO AI-READY INSIGHTS',
+                      style: textTheme.titleMedium?.copyWith(
+                        color: colorScheme.onPrimary,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 1.0,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ).animate()
+                    .fadeIn(duration: 800.ms, delay: 400.ms)
+                    .slideY(begin: 0.3, end: 0, duration: 800.ms, delay: 400.ms, curve: Curves.easeOut)
+                    .shimmer(duration: 2000.ms, delay: 1200.ms),
+
+                  const SizedBox(height: 24),
+
+                  // Animated indicators
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _buildIndicator(context, Icons.image_outlined, 'Images'),
+                      const SizedBox(width: 24),
+                      _buildIndicator(context, Icons.videocam_outlined, 'Videos'),
+                      const SizedBox(width: 24),
+                      _buildIndicator(context, Icons.text_fields_outlined, 'Text'),
+                      const SizedBox(width: 24),
+                      _buildIndicator(context, Icons.audiotrack_outlined, 'Audio'),
+                    ],
+                  ).animate()
+                    .fadeIn(duration: 1000.ms, delay: 800.ms)
+                    .slideY(begin: 0.5, end: 0, duration: 1000.ms, delay: 800.ms, curve: Curves.easeOut),
                 ],
-              ).animate()
-                .fadeIn(duration: 1000.ms, delay: 800.ms)
-                .slideY(begin: 0.5, end: 0, duration: 1000.ms, delay: 800.ms, curve: Curves.easeOut),
-            ],
-          ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -119,31 +160,31 @@ class DataAnnotationHero extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.9),
+        color: colorScheme.surface.withOpacity(0.8),
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: colorScheme.primary, width: 1),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 4,
+            color: colorScheme.primary.withOpacity(0.09),
+            blurRadius: 6,
             offset: const Offset(0, 2),
           ),
         ],
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
+      child: Row(
         children: [
           Icon(
             icon,
             color: colorScheme.primary,
-            size: 24,
+            size: 26,
           ),
-          const SizedBox(height: 4),
+          const SizedBox(width: 8),
           Text(
             label,
-            style: textTheme.labelSmall?.copyWith(
-              color: colorScheme.onSurface,
+            style: textTheme.labelMedium?.copyWith(
+              color: colorScheme.primary,
               fontWeight: FontWeight.w600,
             ),
           ),

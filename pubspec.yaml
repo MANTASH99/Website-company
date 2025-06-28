@@ -7,12 +7,13 @@ environment:
   sdk: ">=3.0.0 <4.0.0"
 
 dependencies:
+  flutter:
+    sdk: flutter
   url_launcher: ^6.0.0
   flutter_animate: ^4.0.0
   responsive_framework: ^1.0.0
-  flutter:
-    sdk: flutter
   cupertino_icons: ^1.0.0
+  video_player: ^2.8.2
   fl_chart: 0.68.0
   google_fonts: 6.1.0
   shared_preferences: 2.3.2
@@ -28,3 +29,5 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/cars.png

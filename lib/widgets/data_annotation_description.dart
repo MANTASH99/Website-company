@@ -22,7 +22,7 @@ class _DataAnnotationDescriptionState extends State<DataAnnotationDescription>
       duration: const Duration(seconds: 2),
       vsync: this,
     )..repeat(reverse: true);
-    
+
     _floatController = AnimationController(
       duration: const Duration(seconds: 3),
       vsync: this,
@@ -63,9 +63,9 @@ class _DataAnnotationDescriptionState extends State<DataAnnotationDescription>
           flex: 3,
           child: _buildTextContent(context),
         ),
-        
+
         const SizedBox(width: 60),
-        
+
         // Image Content
         Expanded(
           flex: 2,
@@ -211,7 +211,7 @@ class _DataAnnotationDescriptionState extends State<DataAnnotationDescription>
         ...benefits.asMap().entries.map((entry) {
           final index = entry.key;
           final benefit = entry.value;
-          
+
           return Container(
             margin: const EdgeInsets.only(bottom: 12),
             child: Row(
@@ -264,7 +264,7 @@ class _DataAnnotationDescriptionState extends State<DataAnnotationDescription>
 
     return Column(
       children: [
-        // Main Animated Image
+        // Car Image with annotation box (your own asset, NO blue label)
         AnimatedBuilder(
           animation: _floatController,
           builder: (context, child) {
@@ -272,6 +272,7 @@ class _DataAnnotationDescriptionState extends State<DataAnnotationDescription>
               offset: Offset(0, -10 * _floatController.value),
               child: Container(
                 height: 300,
+                width: double.infinity,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
@@ -286,15 +287,30 @@ class _DataAnnotationDescriptionState extends State<DataAnnotationDescription>
                   borderRadius: BorderRadius.circular(20),
                   child: Stack(
                     children: [
-                      // Background Image
-                      Image.network(
-                        "https://pixabay.com/get/gb046ac811b3ce03549b300a1fffa5cd444f0d775b01019f0e038b1d62426634874e012368b19601adb7777a7e7bd17365d7bf0c7ee93bd4c360d42834a15a6dc_1280.jpg",
+                      // Your local asset image
+                      Image.asset(
+                        'assets/cars.png', // update path if needed
                         width: double.infinity,
                         height: double.infinity,
                         fit: BoxFit.cover,
                       ),
-                      
-                      // Overlay with annotation indicators
+                      // Annotation bounding box (NO label inside)
+                      Positioned(
+                        left: 40,
+                        top: 60,
+                        child: Container(
+                          width: 160,
+                          height: 100,
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: colorScheme.primary,
+                              width: 3,
+                            ),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                      // Overlay gradient for effect (optional)
                       Container(
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
@@ -302,14 +318,11 @@ class _DataAnnotationDescriptionState extends State<DataAnnotationDescription>
                             end: Alignment.bottomCenter,
                             colors: [
                               Colors.transparent,
-                              Colors.black.withOpacity(0.3),
+                              Colors.black.withOpacity(0.18),
                             ],
                           ),
                         ),
                       ),
-                      
-                      // Floating annotation boxes
-                      ..._buildFloatingAnnotations(context),
                     ],
                   ),
                 ),
@@ -319,148 +332,9 @@ class _DataAnnotationDescriptionState extends State<DataAnnotationDescription>
         ).animate()
           .fadeIn(duration: 1000.ms, delay: 600.ms)
           .scale(begin: const Offset(0.8, 0.8), end: const Offset(1, 1), duration: 1000.ms, delay: 600.ms, curve: Curves.easeOut),
-
         const SizedBox(height: 20),
-
-        // Data Types
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            _buildDataType(context, Icons.image, 'Images', 0),
-            _buildDataType(context, Icons.text_fields, 'Text', 200),
-            _buildDataType(context, Icons.audiotrack, 'Audio', 400),
-          ],
-        ),
+        // REMOVED the 3 small squares under the image (Images, Text, Audio)
       ],
     );
-  }
-
-  Widget _buildDataType(BuildContext context, IconData icon, String label, int delay) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-
-    return AnimatedBuilder(
-      animation: _pulseController,
-      builder: (context, child) {
-        return Transform.scale(
-          scale: 1.0 + (0.1 * _pulseController.value),
-          child: Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: colorScheme.surface,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: colorScheme.primary.withOpacity(0.3),
-                width: 1,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: colorScheme.primary.withOpacity(0.1),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  icon,
-                  color: colorScheme.primary,
-                  size: 24,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  label,
-                  style: textTheme.labelSmall?.copyWith(
-                    color: colorScheme.onSurface,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    ).animate()
-      .fadeIn(duration: 600.ms, delay: Duration(milliseconds: 1000 + delay))
-      .slideY(begin: 0.5, end: 0, duration: 600.ms, delay: Duration(milliseconds: 1000 + delay), curve: Curves.easeOut);
-  }
-
-  List<Widget> _buildFloatingAnnotations(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-
-    return [
-      // Top annotation
-      Positioned(
-        top: 20,
-        right: 20,
-        child: AnimatedBuilder(
-          animation: _pulseController,
-          builder: (context, child) {
-            return Transform.scale(
-              scale: 1.0 + (0.05 * _pulseController.value),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: colorScheme.primary,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: colorScheme.primary.withOpacity(0.3),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Text(
-                  'Object: Car',
-                  style: textTheme.labelSmall?.copyWith(
-                    color: colorScheme.onPrimary,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            );
-          },
-        ),
-      ),
-      
-      // Bottom left annotation
-      Positioned(
-        bottom: 60,
-        left: 20,
-        child: AnimatedBuilder(
-          animation: _pulseController,
-          builder: (context, child) {
-            return Transform.scale(
-              scale: 1.0 + (0.05 * (1 - _pulseController.value)),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: colorScheme.secondary,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: colorScheme.secondary.withOpacity(0.3),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Text(
-                  'Sentiment: Positive',
-                  style: textTheme.labelSmall?.copyWith(
-                    color: colorScheme.onSecondary,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            );
-          },
-        ),
-      ),
-    ];
   }
 }
