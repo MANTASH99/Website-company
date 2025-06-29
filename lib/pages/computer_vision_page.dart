@@ -25,6 +25,8 @@ class _ComputerVisionPageState extends State<ComputerVisionPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
+    
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       body: Stack(
@@ -36,10 +38,17 @@ class _ComputerVisionPageState extends State<ComputerVisionPage> {
                 child: Column(
                   children: [
                     const DataAnnotationHeader(),
-                    const ComputerVisionHero()
-                        .animate()
-                        .fadeIn(duration: 800.ms)
-                        .slideY(begin: 0.3, end: 0, curve: Curves.easeOutQuart),
+                    // Add proper padding around the hero section
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: isDesktop ? 40 : 16,
+                        vertical: isDesktop ? 20 : 16,
+                      ),
+                      child: const ComputerVisionHero()
+                          .animate()
+                          .fadeIn(duration: 800.ms)
+                          .slideY(begin: 0.3, end: 0, curve: Curves.easeOutQuart),
+                    ),
                     const ComputerVisionDescription()
                         .animate(delay: 300.ms)
                         .fadeIn(duration: 800.ms)

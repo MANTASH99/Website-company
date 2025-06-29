@@ -37,7 +37,7 @@ class _AIAppDevelopmentPageState extends State<AIAppDevelopmentPage> {
             child: Column(
               children: [
                 const DataAnnotationHeader(),
-                const AIAppHero()
+                const AIAppDevelopmentHero() // Changed from AIAppHero to AIAppDevelopmentHero
                     .animate()
                     .fadeIn(duration: 800.ms, delay: 200.ms)
                     .slideY(begin: 0.3, end: 0),

@@ -1,117 +1,167 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:responsive_framework/responsive_framework.dart';
+import 'package:video_player/video_player.dart';
 
-class AiAgentsHero extends StatelessWidget {
+class AiAgentsHero extends StatefulWidget {
   const AiAgentsHero({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        // Animated background with connecting nodes (neural net style)
-        Positioned.fill(
-          child: AnimatedBackground(),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 80, horizontal: 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "AI Agents",
-                style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-              ).animate().fadeIn(duration: 800.ms).slideY(begin: 0.3),
-              const SizedBox(height: 20),
-              Text(
-                "Autonomous agents to automate business processes, execute tasks, and enable companies to operate without manual intervention.",
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: Colors.white70,
-                    ),
-              ).animate().fadeIn(duration: 1000.ms).slideY(begin: 0.5),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
+  State<AiAgentsHero> createState() => _AiAgentsHeroState();
 }
 
-// Example animated background widget (neural net style)
-class AnimatedBackground extends StatefulWidget {
-  @override
-  State<AnimatedBackground> createState() => _AnimatedBackgroundState();
-}
-
-class _AnimatedBackgroundState extends State<AnimatedBackground>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
+class _AiAgentsHeroState extends State<AiAgentsHero> with TickerProviderStateMixin {
+  late VideoPlayerController _videoController;
+  bool _videoReady = false;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 10),
-    )..repeat(reverse: true);
+    _videoController = VideoPlayerController.asset('assets/aiagent.mp4')
+      ..initialize().then((_) {
+        setState(() => _videoReady = true);
+        _videoController.setLooping(true);
+        _videoController.setVolume(0);
+        _videoController.play();
+      });
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _videoController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) {
-        // Simulate moving nodes and connecting lines
-        return CustomPaint(
-          painter: NeuralNetworkPainter(_controller.value),
-          child: Container(),
-        );
-      },
+    final isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
+    return Container(
+      margin: const EdgeInsets.only(top: 32, bottom: 24),
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Container(
+        decoration: BoxDecoration(
+          color: const Color(0xff151c2c),
+          borderRadius: BorderRadius.circular(36),
+        ),
+        padding: const EdgeInsets.all(38),
+        child: isDesktop
+            ? Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // Textual content
+                  Expanded(
+                    flex: 6,
+                    child: _buildHeroText(context),
+                  ),
+                  const SizedBox(width: 36),
+                  // Video
+                  Expanded(
+                    flex: 5,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(24),
+                      child: AspectRatio(
+                        aspectRatio: 16 / 7,
+                        child: _videoReady
+                            ? FadeIn(
+                                child: VideoPlayer(_videoController),
+                                duration: 900.ms,
+                              )
+                            : Container(
+                                color: Colors.black12,
+                                child: const Center(
+                                    child: CircularProgressIndicator()),
+                              ),
+                      ),
+                    ),
+                  ),
+                ],
+              )
+            : Column(
+                children: [
+                  _buildHeroText(context),
+                  const SizedBox(height: 26),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: AspectRatio(
+                      aspectRatio: 16 / 7,
+                      child: _videoReady
+                          ? FadeIn(
+                              child: VideoPlayer(_videoController),
+                              duration: 900.ms,
+                            )
+                          : Container(
+                              color: Colors.black12,
+                              child: const Center(
+                                  child: CircularProgressIndicator()),
+                            ),
+                    ),
+                  ),
+                ],
+              ),
+      ),
     );
   }
-}
 
-// Simple neural network painter for background effect
-class NeuralNetworkPainter extends CustomPainter {
-  final double progress;
-  NeuralNetworkPainter(this.progress);
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final nodes = [
-      Offset(size.width * 0.2, size.height * 0.3 + 20 * progress),
-      Offset(size.width * 0.5, size.height * 0.18 + 60 * progress),
-      Offset(size.width * 0.7, size.height * 0.6 - 40 * progress),
-      Offset(size.width * 0.4, size.height * 0.8 - 30 * progress),
-      Offset(size.width * 0.8, size.height * 0.42 + 40 * progress),
-    ];
-    final paintNode = Paint()..color = Colors.white.withOpacity(0.85);
-    final paintLine = Paint()
-      ..color = Colors.cyanAccent.withOpacity(0.4)
-      ..strokeWidth = 2;
-
-    // Draw lines between nodes
-    for (var i = 0; i < nodes.length - 1; i++) {
-      for (var j = i + 1; j < nodes.length; j++) {
-        canvas.drawLine(nodes[i], nodes[j], paintLine);
-      }
-    }
-
-    // Draw nodes
-    for (final node in nodes) {
-      canvas.drawCircle(node, 12, paintNode);
-    }
+  Widget _buildHeroText(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "AI Agents",
+          style: Theme.of(context).textTheme.displaySmall?.copyWith(
+              color: const Color(0xff3f89fc),
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1.2),
+        )
+            .animate()
+            .fadeIn(duration: 700.ms, delay: 0.ms)
+            .slideY(begin: 0.3, end: 0),
+        const SizedBox(height: 16),
+        Text(
+          "Autonomous digital workers to automate business processes, execute tasks, and accelerate your business transformation.",
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              color: Colors.white.withOpacity(0.90), fontWeight: FontWeight.w500),
+        )
+            .animate()
+            .fadeIn(duration: 700.ms, delay: 150.ms)
+            .slideY(begin: 0.3, end: 0),
+        const SizedBox(height: 30),
+        Wrap(
+          spacing: 14,
+          runSpacing: 12,
+          children: [
+            _heroChip(context, Icons.flash_on, 'Real-Time Automation', const Color(0xff6c63ff)),
+            _heroChip(context, Icons.link, 'Seamless Integration', const Color(0xff48e06c)),
+            _heroChip(context, Icons.shield, 'Secure & Reliable', const Color(0xff3f89fc)),
+          ],
+        )
+            .animate()
+            .fadeIn(duration: 700.ms, delay: 350.ms)
+            .slideY(begin: 0.3, end: 0),
+      ],
+    );
   }
 
-  @override
-  bool shouldRepaint(covariant NeuralNetworkPainter oldDelegate) =>
-      oldDelegate.progress != progress;
+  Widget _heroChip(BuildContext context, IconData icon, String label, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.09),
+        borderRadius: BorderRadius.circular(25),
+        border: Border.all(color: color.withOpacity(0.38), width: 1.2),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: color, size: 20),
+          const SizedBox(width: 8),
+          Text(
+            label,
+            style: TextStyle(
+                color: color, fontWeight: FontWeight.w600, fontSize: 14),
+          ),
+        ],
+      ),
+    );
+  }
 }

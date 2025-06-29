@@ -17,7 +17,7 @@ class _DataAnnotationHeroState extends State<DataAnnotationHero> {
   void initState() {
     super.initState();
     _controller = VideoPlayerController.network(
-      "https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4",
+      "assets/data-annotation.mp4",
     )..initialize().then((_) {
         setState(() {});
         _controller.setLooping(true);

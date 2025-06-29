@@ -3,7 +3,6 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import '../theme.dart';
 
-
 class ThreeDAnnotationDescription extends StatefulWidget {
   const ThreeDAnnotationDescription({super.key});
 
@@ -15,6 +14,7 @@ class _ThreeDAnnotationDescriptionState extends State<ThreeDAnnotationDescriptio
     with TickerProviderStateMixin {
   late AnimationController _rotateController;
   late AnimationController _pulseController;
+  late AnimationController _liveProjectController;
 
   @override
   void initState() {
@@ -28,12 +28,19 @@ class _ThreeDAnnotationDescriptionState extends State<ThreeDAnnotationDescriptio
       duration: const Duration(seconds: 2),
       vsync: this,
     )..repeat(reverse: true);
+    
+    // Live Project animation controller
+    _liveProjectController = AnimationController(
+      duration: const Duration(seconds: 2),
+      vsync: this,
+    )..repeat(reverse: true);
   }
 
   @override
   void dispose() {
     _rotateController.dispose();
     _pulseController.dispose();
+    _liveProjectController.dispose();
     super.dispose();
   }
 
@@ -63,7 +70,7 @@ class _ThreeDAnnotationDescriptionState extends State<ThreeDAnnotationDescriptio
           const SizedBox(width: 80),
           Expanded(
             flex: 2,
-            child: _buildImageContent(context),
+            child: _buildLiveProjectImageContent(context),
           ),
         ],
       ),
@@ -75,7 +82,7 @@ class _ThreeDAnnotationDescriptionState extends State<ThreeDAnnotationDescriptio
       children: [
         _buildTextContent(context),
         const SizedBox(height: 60),
-        _buildImageContent(context),
+        _buildLiveProjectImageContent(context),
       ],
     );
   }
@@ -275,34 +282,194 @@ class _ThreeDAnnotationDescriptionState extends State<ThreeDAnnotationDescriptio
     );
   }
 
-  Widget _buildImageContent(BuildContext context) {
+  Widget _buildLiveProjectImageContent(BuildContext context) {
     return Stack(
       children: [
         Container(
           height: 400,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
-            image: DecorationImage(
-              image: NetworkImage(
-                "https://pixabay.com/get/gfd69d617b490cb818fc7794de5e0fd38ab06b2169f27242764d9ad7e9fd06f6153b51c2c5389e861d5dcabb6cf0653cb305494e68cb32bdaa70c6dcf0c76905f_1280.jpg",
-              ),
-              fit: BoxFit.cover,
-            ),
             boxShadow: [
               BoxShadow(
-                color: Theme.of(context).colorScheme.tertiary.withOpacity(0.2),
+                color: Colors.green.withOpacity(0.3),
                 blurRadius: 30,
                 offset: const Offset(0, 10),
               ),
             ],
           ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: Stack(
+              children: [
+                // Background image (3d-ann2.png)
+                Positioned.fill(
+                  child: Image.asset(
+                    '3d-ann2.png',
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              Colors.green.withOpacity(0.8),
+                              Colors.teal.withOpacity(0.8),
+                            ],
+                          ),
+                        ),
+                        child: Center(
+                          child: Icon(
+                            Icons.play_circle_filled,
+                            size: 60,
+                            color: Colors.white,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                
+                // Animated overlay gradient
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.transparent,
+                        Colors.black.withOpacity(0.6),
+                      ],
+                    ),
+                  ),
+                ),
+                
+                // Live Project label with cool animation
+                Positioned(
+                  bottom: 20,
+                  left: 20,
+                  right: 20,
+                  child: AnimatedBuilder(
+                    animation: _liveProjectController,
+                    builder: (context, child) {
+                      return Transform.scale(
+                        scale: 1 + (0.05 * _liveProjectController.value),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.green.withOpacity(0.9),
+                            borderRadius: BorderRadius.circular(25),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.green.withOpacity(0.6),
+                                blurRadius: 20 * (1 + _liveProjectController.value),
+                                spreadRadius: 2 * _liveProjectController.value,
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              AnimatedBuilder(
+                                animation: _liveProjectController,
+                                builder: (context, child) {
+                                  return Transform.rotate(
+                                    angle: _liveProjectController.value * 2 * 3.14159,
+                                    child: Container(
+                                      width: 10,
+                                      height: 10,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        shape: BoxShape.circle,
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.white.withOpacity(0.8),
+                                            blurRadius: 10,
+                                            spreadRadius: 2,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                              const SizedBox(width: 12),
+                              Text(
+                                'LIVE PROJECT',
+                                style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 1.5,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                
+                // Recording indicator
+                Positioned(
+                  top: 15,
+                  right: 15,
+                  child: AnimatedBuilder(
+                    animation: _pulseController,
+                    builder: (context, child) {
+                      return Transform.scale(
+                        scale: 1 + (0.1 * _pulseController.value),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.red.withOpacity(0.9),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: 6,
+                                height: 6,
+                                decoration: const BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                'REC',
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 10,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
+        
+        // Enhanced floating 3D indicators (existing ones)
         ..._buildFloating3DIndicators(context),
       ],
     )
         .animate(delay: 600.ms)
         .fadeIn(duration: 800.ms)
-        .slideY(begin: 0.3, end: 0);
+        .slideY(begin: 0.3, end: 0)
+        .then()
+        .shimmer(
+          duration: 3000.ms,
+          color: Colors.green.withOpacity(0.2),
+        );
   }
 
   List<Widget> _buildFloating3DIndicators(BuildContext context) {

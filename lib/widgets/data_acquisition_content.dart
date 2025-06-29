@@ -268,37 +268,26 @@ class _DataAcquisitionContentState extends State<DataAcquisitionContent>
   }
 
   Widget _buildImageContent(BuildContext context) {
-    return Stack(
-      children: [
-        // Main data visualization image
-        Container(
-          height: 500,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(24),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
-              ),
-            ],
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(24),
-            child: Image.network(
-              "https://pixabay.com/get/g34d1f9a866835ac6f3d1e240b3714fb179fa3a510ef28a0400f0b6c54ee0f8ca4008891de32406ffae3c38502cbe93b7ce3eb13d927a0ffa4fea88b8a273d8aa_1280.jpg",
-              fit: BoxFit.cover,
-              width: double.infinity,
-            ),
-          ),
-        )
-        .animate()
-        .fadeIn(duration: 800.ms, delay: 400.ms)
-        .scale(begin: const Offset(0.8, 0.8), end: const Offset(1.0, 1.0)),
-        
-        // Floating data indicators
-        ..._buildFloatingDataIndicators(context),
-      ],
+    // Show your image with animation, centered in the right panel
+    return Center(
+      child: Container(
+        height: 400,
+        width: 320,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(28),
+          child: Image.asset(
+            "assets/data-aquisition.png",
+            fit: BoxFit.cover,
+            width: 320,
+            height: 400,
+          )
+              .animate(
+                onPlay: (controller) => controller.repeat(reverse: true),
+              )
+              .scaleXY(end: 1.04, begin: 1.0, duration: 1600.ms, curve: Curves.easeInOut)
+              .fadeIn(duration: 900.ms),
+        ),
+      ),
     );
   }
 

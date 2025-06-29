@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:video_player/video_player.dart';
 import '../theme.dart';
 import '../models/service_model.dart';
 
@@ -13,6 +14,26 @@ class HeroSection extends StatefulWidget {
 class _HeroSectionState extends State<HeroSection> {
   bool _isServicesHovered = false;
   bool _isProductsHovered = false;
+  late VideoPlayerController _videoController;
+
+  @override
+  void initState() {
+    super.initState();
+    _videoController = VideoPlayerController.asset(
+      'assets/landing-page.mp4',
+    )..initialize().then((_) {
+        setState(() {});
+        _videoController.setLooping(true);
+        _videoController.setVolume(0);
+        _videoController.play();
+      });
+  }
+
+  @override
+  void dispose() {
+    _videoController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,135 +42,164 @@ class _HeroSectionState extends State<HeroSection> {
     final size = MediaQuery.of(context).size;
     final isDesktop = size.width > 1024;
     final isTablet = size.width > 768;
+    final heroHeight = isDesktop ? 500.0 : (isTablet ? 380.0 : 300.0);
 
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            colorScheme.surface,
-            colorScheme.surfaceVariant.withOpacity(0.3),
-            colorScheme.primary.withOpacity(0.05),
-          ],
-        ),
-      ),
-      child: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: isDesktop ? 80 : (isTablet ? 40 : 24),
-          vertical: isDesktop ? 120 : (isTablet ? 80 : 60),
-        ),
-        child: Column(
+    return ClipRRect(
+      borderRadius: BorderRadius.zero,
+      child: SizedBox(
+        width: double.infinity,
+        height: heroHeight,
+        child: Stack(
+          fit: StackFit.expand,
           children: [
+            // Video background
+            if (_videoController.value.isInitialized)
+              FittedBox(
+                fit: BoxFit.cover,
+                child: SizedBox(
+                  width: _videoController.value.size.width,
+                  height: _videoController.value.size.height,
+                  child: VideoPlayer(_videoController),
+                ),
+              )
+            else
+              Container(color: colorScheme.surfaceVariant),
+            // Overlay for readability
             Container(
-              constraints: BoxConstraints(
-                maxWidth: isDesktop ? 900 : double.infinity,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.black.withOpacity(0.4),
+                    Colors.black.withOpacity(0.2),
+                    Colors.black.withOpacity(0.5),
+                  ],
+                ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  // Main Headline
-                  Text(
-                    'AI Solutions for the Future',
-                    style: textTheme.displayMedium?.copyWith(
-                      color: colorScheme.onSurface,
-                      fontWeight: FontWeight.w700,
-                      height: 1.1,
-                    ),
-                    textAlign: TextAlign.center,
-                  ).animate().fadeIn(duration: 800.ms).slideY(
-                    begin: 0.3,
-                    end: 0,
-                    duration: 800.ms,
-                  ),
-                  
-                  SizedBox(height: isDesktop ? 32 : 24),
-                  
-                  // Subtitle
-                  Text(
-                    'We transform businesses through intelligent data labeling, cutting-edge AI applications, and innovative data solutions. Your partner for comprehensive AI implementation.',
-                    style: textTheme.headlineSmall?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
-                      fontWeight: FontWeight.w400,
-                      height: 1.4,
-                    ),
-                    textAlign: TextAlign.center,
-                  ).animate().fadeIn(
-                    delay: 200.ms,
-                    duration: 800.ms,
-                  ).slideY(
-                    begin: 0.3,
-                    end: 0,
-                    duration: 800.ms,
-                  ),
-                  
-                  SizedBox(height: isDesktop ? 48 : 32),
-                  
-                  // CTA Buttons
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      if (isTablet) ...[
-                        // Services button with dropdown
-                        _buildDropdownButton(
-                          context,
-                          'Explore Services',
-                          Icons.arrow_forward,
-                          true,
-                          _isServicesHovered,
-                          (hovering) => setState(() => _isServicesHovered = hovering),
-                          () => Navigator.of(context).pushNamed('/data-annotation'),
-                          _buildServicesDropdown(context),
-                        ),
-                        const SizedBox(width: 16),
-                        // Products button with dropdown
-                        _buildDropdownButton(
-                          context,
-                          'View Portfolio',
-                          null,
-                          false,
-                          _isProductsHovered,
-                          (hovering) => setState(() => _isProductsHovered = hovering),
-                          () => Navigator.of(context).pushNamed('/ai-app-development'),
-                          _buildProductsDropdown(context),
-                        ),
-                      ] else ...[
-                        Expanded(
-                          child: ElevatedButton(
-                            onPressed: () {
-                              Navigator.of(context).pushNamed('/data-annotation');
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: colorScheme.primary,
-                              foregroundColor: colorScheme.onPrimary,
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
+            ),
+            // Content
+            Center(
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: isDesktop ? 80 : (isTablet ? 40 : 24),
+                  vertical: isDesktop ? 120 : (isTablet ? 80 : 60),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      constraints: BoxConstraints(
+                        maxWidth: isDesktop ? 900 : double.infinity,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          // Main Headline
+                          Text(
+                            'AI Solutions for the Future',
+                            style: textTheme.displayMedium?.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                              height: 1.1,
                             ),
-                            child: Text(
-                              'Explore Services',
-                              style: textTheme.labelLarge?.copyWith(
-                                color: colorScheme.onPrimary,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
+                            textAlign: TextAlign.center,
+                          ).animate().fadeIn(duration: 800.ms).slideY(
+                            begin: 0.3,
+                            end: 0,
+                            duration: 800.ms,
                           ),
-                        ),
-                      ],
-                    ],
-                  ).animate().fadeIn(
-                    delay: 400.ms,
-                    duration: 800.ms,
-                  ).slideY(
-                    begin: 0.3,
-                    end: 0,
-                    duration: 800.ms,
-                  ),
-                  
-                  SizedBox(height: isDesktop ? 60 : 32),
-                ],
+                          
+                          SizedBox(height: isDesktop ? 32 : 24),
+                          
+                          // Subtitle
+                          Text(
+                            'We transform businesses through intelligent data labeling, cutting-edge AI applications, and innovative data solutions. Your partner for comprehensive AI implementation.',
+                            style: textTheme.headlineSmall?.copyWith(
+                              color: Colors.white70,
+                              fontWeight: FontWeight.w400,
+                              height: 1.4,
+                            ),
+                            textAlign: TextAlign.center,
+                          ).animate().fadeIn(
+                            delay: 200.ms,
+                            duration: 800.ms,
+                          ).slideY(
+                            begin: 0.3,
+                            end: 0,
+                            duration: 800.ms,
+                          ),
+                          
+                          SizedBox(height: isDesktop ? 48 : 32),
+                          
+                          // CTA Buttons
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              if (isTablet) ...[
+                                // Services button with dropdown
+                                _buildDropdownButton(
+                                  context,
+                                  'Explore Services',
+                                  Icons.arrow_forward,
+                                  true,
+                                  _isServicesHovered,
+                                  (hovering) => setState(() => _isServicesHovered = hovering),
+                                  () => Navigator.of(context).pushNamed('/data-annotation'),
+                                  _buildServicesDropdown(context),
+                                ),
+                                const SizedBox(width: 16),
+                                // Products button with dropdown
+                                _buildDropdownButton(
+                                  context,
+                                  'View Portfolio',
+                                  null,
+                                  false,
+                                  _isProductsHovered,
+                                  (hovering) => setState(() => _isProductsHovered = hovering),
+                                  () => Navigator.of(context).pushNamed('/ai-app-development'),
+                                  _buildProductsDropdown(context),
+                                ),
+                              ] else ...[
+                                Expanded(
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pushNamed('/data-annotation');
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: colorScheme.primary,
+                                      foregroundColor: colorScheme.onPrimary,
+                                      padding: const EdgeInsets.symmetric(vertical: 16),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      'Explore Services',
+                                      style: textTheme.labelLarge?.copyWith(
+                                        color: colorScheme.onPrimary,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ).animate().fadeIn(
+                            delay: 400.ms,
+                            duration: 800.ms,
+                          ).slideY(
+                            begin: 0.3,
+                            end: 0,
+                            duration: 800.ms,
+                          ),
+                          
+                          SizedBox(height: isDesktop ? 60 : 32),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
@@ -157,6 +207,10 @@ class _HeroSectionState extends State<HeroSection> {
       ),
     );
   }
+
+  // ... rest of your dropdown and helper methods remain unchanged ...
+  // (Paste your _buildDropdownButton, _buildServicesDropdown, _buildProductsDropdown, etc. here)
+  // Only the build method and the constructor/init/dispose were changed.
 
   Widget _buildDropdownButton(
     BuildContext context,

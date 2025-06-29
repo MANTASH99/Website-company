@@ -1,211 +1,167 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:responsive_framework/responsive_framework.dart';
-import '../theme.dart';
+import 'package:video_player/video_player.dart';
 
-
-class TextAnnotationHero extends StatelessWidget {
+class TextAnnotationHero extends StatefulWidget {
   const TextAnnotationHero({super.key});
+
+  @override
+  State<TextAnnotationHero> createState() => _TextAnnotationHeroState();
+}
+
+class _TextAnnotationHeroState extends State<TextAnnotationHero> {
+  late VideoPlayerController _videoController;
+
+  @override
+  void initState() {
+    super.initState();
+    _videoController = VideoPlayerController.asset(
+      'assets/NLP.mp4',
+    )..initialize().then((_) {
+        setState(() {});
+        _videoController.setLooping(true);
+        _videoController.setVolume(0);
+        _videoController.play();
+      });
+  }
+
+  @override
+  void dispose() {
+    _videoController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
-    
+    final double heroHeight = isDesktop ? 500 : 370;
+    final double cardWidth = isDesktop ? 1200 : MediaQuery.of(context).size.width - 8;
+    final double cardHeight = isDesktop ? 530 : 380;
+
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: isDesktop ? 80 : 24,
-        vertical: isDesktop ? 120 : 80,
-      ),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Theme.of(context).colorScheme.primary.withOpacity(0.05),
-            Theme.of(context).colorScheme.secondary.withOpacity(0.05),
-          ],
-        ),
-      ),
-      child: Column(
-        children: [
-          // Breadcrumb Navigation
-          Container(
-            width: double.infinity,
-            margin: const EdgeInsets.only(bottom: 40),
-            child: Wrap(
-              children: [
-                _buildBreadcrumbItem(context, 'Home', false),
-                _buildBreadcrumbSeparator(context),
-                _buildBreadcrumbItem(context, 'Data Annotation', false),
-                _buildBreadcrumbSeparator(context),
-                _buildBreadcrumbItem(context, 'Natural Language Processing', true),
-              ],
-            ),
+      width: double.infinity,
+      height: heroHeight,
+      alignment: Alignment.center,
+      color: Colors.black, // Key line for seamless black background
+      child: Center(
+        child: Container(
+          width: cardWidth,
+          height: cardHeight,
+          decoration: BoxDecoration(
+            color: Colors.grey.shade900.withOpacity(0.80),
+            borderRadius: BorderRadius.circular(0),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.22),
+                blurRadius: 32,
+                offset: const Offset(0, 10),
+              ),
+            ],
           ),
-          
-          // Hero Content
-          Container(
-            constraints: const BoxConstraints(maxWidth: 1200),
-            child: Column(
-              children: [
-                // Title Section
-                Text(
-                  'Natural Language Processing',
-                  style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: Theme.of(context).colorScheme.onSurface,
-                    height: 1.1,
-                  ),
-                  textAlign: TextAlign.center,
-                )
-                    .animate()
-                    .fadeIn(duration: 800.ms)
-                    .slideY(begin: 0.3, end: 0),
-                
-                const SizedBox(height: 24),
-                
-                // Subtitle
-                Container(
-                  constraints: const BoxConstraints(maxWidth: 800),
-                  child: Text(
-                    'Transform unstructured text data into valuable insights with our NLP solutions that enable machines to understand, interpret, and generate human language.',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      height: 1.5,
-                      fontWeight: FontWeight.normal,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+                      if (_videoController.value.isInitialized)
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(0),
+                          child: SizedBox.expand(
+                            child: FittedBox(
+                              fit: BoxFit.cover,
+                              child: SizedBox(
+                                width: _videoController.value.size.width,
+                                height: _videoController.value.size.height,
+                                child: VideoPlayer(_videoController),
+                      ),
                     ),
-                    textAlign: TextAlign.center,
-                  )
-                      .animate(delay: 200.ms)
-                      .fadeIn(duration: 800.ms)
-                      .slideY(begin: 0.3, end: 0),
+                  ),
                 ),
-                
-                const SizedBox(height: 60),
-                
-                // NLP Capabilities
-                isDesktop ? _buildDesktopCapabilities(context) : _buildMobileCapabilities(context),
-              ],
-            ),
+              Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: isDesktop ? 64 : 14,
+                  vertical: isDesktop ? 48 : 14,
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _breadcrumb('Home', false),
+                        _breadcrumbSeparator(),
+                        _breadcrumb('Data Annotation', false),
+                        _breadcrumbSeparator(),
+                        _breadcrumb('Natural Language Processing', true),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'NATURAL LANGUAGE PROCESSING',
+                      style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 2,
+                          ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 20),
+                    const SizedBox(height: 32),
+                    Wrap(
+                      alignment: WrapAlignment.center,
+                      spacing: 16,
+                      runSpacing: 12,
+                      children: [
+                        _chip(context, Icons.psychology, 'Language Understanding'),
+                        _chip(context, Icons.analytics, 'Text Analysis'),
+                        _chip(context, Icons.chat, 'Language Generation'),
+                        _chip(context, Icons.translate, 'Multilingual Support'),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBreadcrumbItem(BuildContext context, String text, bool isActive) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: isActive 
-            ? Theme.of(context).colorScheme.primary.withOpacity(0.1)
-            : Colors.transparent,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(
-        text,
-        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-          color: isActive 
-              ? Theme.of(context).colorScheme.primary
-              : Theme.of(context).colorScheme.onSurfaceVariant,
-          fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
         ),
       ),
     );
   }
 
-  Widget _buildBreadcrumbSeparator(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      child: Icon(
-        Icons.chevron_right,
-        size: 16,
-        color: Theme.of(context).colorScheme.onSurfaceVariant,
-      ),
-    );
-  }
-
-  Widget _buildDesktopCapabilities(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        _buildCapabilityItem(context, Icons.psychology, 'Language Understanding', 0),
-        _buildCapabilityItem(context, Icons.analytics, 'Text Analysis', 200),
-        _buildCapabilityItem(context, Icons.chat, 'Language Generation', 400),
-        _buildCapabilityItem(context, Icons.translate, 'Multilingual Support', 600),
-      ],
-    );
-  }
-
-  Widget _buildMobileCapabilities(BuildContext context) {
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            _buildCapabilityItem(context, Icons.psychology, 'Language Understanding', 0),
-            _buildCapabilityItem(context, Icons.analytics, 'Text Analysis', 200),
-          ],
+  Widget _breadcrumb(String text, bool active) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        decoration: BoxDecoration(
+          color: active ? Colors.blueAccent.withOpacity(0.18) : Colors.transparent,
+          borderRadius: BorderRadius.circular(20),
         ),
-        const SizedBox(height: 40),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            _buildCapabilityItem(context, Icons.chat, 'Language Generation', 400),
-            _buildCapabilityItem(context, Icons.translate, 'Multilingual Support', 600),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildCapabilityItem(BuildContext context, IconData icon, String label, int delay) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-            blurRadius: 20,
-            offset: const Offset(0, 4),
+        child: Text(
+          text,
+          style: TextStyle(
+            color: active ? Colors.blueAccent : Colors.white70,
+            fontWeight: active ? FontWeight.bold : FontWeight.normal,
+            fontSize: 13,
           ),
-        ],
+        ),
+      );
+  Widget _breadcrumbSeparator() => const Padding(
+        padding: EdgeInsets.symmetric(horizontal: 4),
+        child: Icon(Icons.chevron_right, color: Colors.white60, size: 17),
+      );
+
+  Widget _chip(BuildContext context, IconData icon, String label) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.14),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white.withOpacity(0.18)),
       ),
-      child: Column(
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(
-              icon,
-              size: 24,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            label,
-            style: Theme.of(context).textTheme.labelMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
-            textAlign: TextAlign.center,
-          ),
+          Icon(icon, color: Colors.white, size: 18),
+          const SizedBox(width: 7),
+          Text(label, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 15)),
         ],
       ),
-    )
-        .animate(delay: Duration(milliseconds: delay))
-        .fadeIn(duration: 600.ms)
-        .slideY(begin: 0.3, end: 0)
-        .then()
-        .shimmer(duration: 1000.ms, color: Theme.of(context).colorScheme.primary.withOpacity(0.3));
+    );
   }
 }

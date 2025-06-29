@@ -31,3 +31,25 @@ flutter:
   uses-material-design: true
   assets:
     - assets/cars.png
+    - assets/landing-page.mp4
+    - assets/computer-vission.mp4
+    - assets/computer-vission.jpg
+    - assets/computer-vission3.png
+    - assets/NLP.mp4
+    - assets/nlp-.png
+    - assets/nlp3.png
+    - assets/3d-ann.png
+    - assets/3d-ann1.png
+    - assets/3d-ann2.png
+    - assets/3d-ann3.png
+    - assets/3d-ann4.png
+    - assets/app-dev.mp4
+    - assets/app-devv-.png
+    - assets/find.png
+    - assets/findrosi.png
+    - assets/ai-consulting.mp4
+    - assets/data-aquistion.mp4
+    - assets/data-aquisition.png
+    - assets/aiagent.mp4
+    - assets/company-logo.png
+    

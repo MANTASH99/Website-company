@@ -15,6 +15,7 @@ class _AIAppDescriptionState extends State<AIAppDescription>
     with TickerProviderStateMixin {
   late AnimationController _floatController;
   late AnimationController _pulseController;
+  late AnimationController _glowController;
 
   @override
   void initState() {
@@ -28,12 +29,18 @@ class _AIAppDescriptionState extends State<AIAppDescription>
       duration: const Duration(seconds: 2),
       vsync: this,
     )..repeat(reverse: true);
+    
+    _glowController = AnimationController(
+      duration: const Duration(seconds: 2),
+      vsync: this,
+    )..repeat(reverse: true);
   }
 
   @override
   void dispose() {
     _floatController.dispose();
     _pulseController.dispose();
+    _glowController.dispose();
     super.dispose();
   }
 
@@ -245,43 +252,94 @@ class _AIAppDescriptionState extends State<AIAppDescription>
   Widget _buildImageContent(BuildContext context) {
     return Stack(
       children: [
-        // Main image
+        // Main image with app-devv-.png
         AnimatedBuilder(
           animation: _floatController,
           builder: (context, child) {
             return Transform.translate(
-              offset: Offset(0, _floatController.value * 10 - 5),
-              child: Container(
-                height: 400,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
-                      blurRadius: 20,
-                      offset: const Offset(0, 10),
-                    ),
-                  ],
-                  image: DecorationImage(
-                    image: NetworkImage(
-                      "https://pixabay.com/get/g7d775908031ca0e69f5554025af9cbf8905e9f4dd9527ca992e30cdc26edae47834897047acddc2fdf74515531c02aa64d0fe682a45cc7b7b2f0cd9c75bfa05b_1280.png",
-                    ),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                        Theme.of(context).colorScheme.secondary.withOpacity(0.1),
+              offset: Offset(0, _floatController.value * 15 - 7.5),
+              child: AnimatedBuilder(
+                animation: _glowController,
+                builder: (context, child) {
+                  return Container(
+                    height: 400,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Theme.of(context).colorScheme.primary.withOpacity(0.3 + 0.2 * _glowController.value),
+                          blurRadius: 30 * (1 + _glowController.value),
+                          offset: const Offset(0, 15),
+                          spreadRadius: 5 * _glowController.value,
+                        ),
                       ],
                     ),
-                  ),
-                ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: Stack(
+                        children: [
+                          // App development image
+                          Image.asset(
+                            'app-devv-.png',
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            height: double.infinity,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                    colors: [
+                                      Theme.of(context).colorScheme.primary.withOpacity(0.8),
+                                      Theme.of(context).colorScheme.secondary.withOpacity(0.8),
+                                      Theme.of(context).colorScheme.tertiary.withOpacity(0.8),
+                                    ],
+                                  ),
+                                ),
+                                child: Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.phone_android,
+                                        size: 80,
+                                        color: Colors.white,
+                                      ),
+                                      const SizedBox(height: 16),
+                                      Text(
+                                        'App Development',
+                                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                          
+                          // Gradient overlay for better contrast
+                          Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20),
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                                  Theme.of(context).colorScheme.secondary.withOpacity(0.1),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
               ),
             );
           },
@@ -306,7 +364,7 @@ class _AIAppDescriptionState extends State<AIAppDescription>
           animation: _pulseController,
           builder: (context, child) {
             return Transform.scale(
-              scale: 1.0 + (_pulseController.value * 0.1),
+              scale: 1.0 + (_pulseController.value * 0.15),
               child: Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
@@ -314,9 +372,10 @@ class _AIAppDescriptionState extends State<AIAppDescription>
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
-                      blurRadius: 10,
+                      color: Theme.of(context).colorScheme.primary.withOpacity(0.4),
+                      blurRadius: 15 * (1 + _pulseController.value),
                       offset: const Offset(0, 4),
+                      spreadRadius: 2 * _pulseController.value,
                     ),
                   ],
                 ),
@@ -342,38 +401,47 @@ class _AIAppDescriptionState extends State<AIAppDescription>
           animation: _floatController,
           builder: (context, child) {
             return Transform.translate(
-              offset: Offset(0, -_floatController.value * 8 + 4),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.secondary,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Theme.of(context).colorScheme.secondary.withOpacity(0.3),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.smartphone,
-                      color: Theme.of(context).colorScheme.onSecondary,
-                      size: 16,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Mobile AI',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.onSecondary,
-                        fontWeight: FontWeight.w600,
+              offset: Offset(0, -_floatController.value * 12 + 6),
+              child: AnimatedBuilder(
+                animation: _pulseController,
+                builder: (context, child) {
+                  return Transform.scale(
+                    scale: 1.0 + (_pulseController.value * 0.1),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.secondary,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Theme.of(context).colorScheme.secondary.withOpacity(0.4),
+                            blurRadius: 12 * (1 + _pulseController.value),
+                            offset: const Offset(0, 4),
+                            spreadRadius: 1 * _pulseController.value,
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.smartphone,
+                            color: Theme.of(context).colorScheme.onSecondary,
+                            size: 16,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Mobile AI',
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Theme.of(context).colorScheme.onSecondary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ],
-                ),
+                  );
+                },
               ),
             );
           },
@@ -381,6 +449,43 @@ class _AIAppDescriptionState extends State<AIAppDescription>
             .animate(delay: 1400.ms)
             .fadeIn(duration: 600.ms)
             .slideX(begin: -0.5, end: 0),
+      ),
+      
+      // Code indicator
+      Positioned(
+        top: 120,
+        left: 20,
+        child: AnimatedBuilder(
+          animation: _pulseController,
+          builder: (context, child) {
+            return Transform.scale(
+              scale: 1.0 + (_pulseController.value * 0.12),
+              child: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.tertiary,
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Theme.of(context).colorScheme.tertiary.withOpacity(0.4),
+                      blurRadius: 12 * (1 + _pulseController.value),
+                      offset: const Offset(0, 3),
+                      spreadRadius: 1 * _pulseController.value,
+                    ),
+                  ],
+                ),
+                child: Icon(
+                  Icons.code,
+                  color: Theme.of(context).colorScheme.onTertiary,
+                  size: 20,
+                ),
+              ),
+            );
+          },
+        )
+            .animate(delay: 1600.ms)
+            .fadeIn(duration: 600.ms)
+            .slideY(begin: -0.3, end: 0),
       ),
     ];
   }

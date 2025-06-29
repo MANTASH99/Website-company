@@ -16,7 +16,15 @@ class _FindRosiShowcaseState extends State<FindRosiShowcase>
     with TickerProviderStateMixin {
   late AnimationController _rotateController;
   late AnimationController _pulseController;
+  late AnimationController _imageController;
+  late AnimationController _redGlowController;
   bool _isVisitHovered = false;
+  int _currentImageIndex = 0;
+  
+  final List<String> _imageAssets = [
+    'find.png',
+    'findrosi.png',
+  ];
 
   @override
   void initState() {
@@ -30,12 +38,43 @@ class _FindRosiShowcaseState extends State<FindRosiShowcase>
       duration: const Duration(seconds: 2),
       vsync: this,
     )..repeat(reverse: true);
+    
+    _imageController = AnimationController(
+      duration: const Duration(seconds: 5),
+      vsync: this,
+    );
+    
+    _redGlowController = AnimationController(
+      duration: const Duration(seconds: 2),
+      vsync: this,
+    )..repeat(reverse: true);
+    
+    _startImageTransition();
+  }
+
+  void _startImageTransition() {
+    _imageController.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        setState(() {
+          _currentImageIndex = (_currentImageIndex + 1) % _imageAssets.length;
+        });
+        _imageController.reset();
+        Future.delayed(const Duration(milliseconds: 100), () {
+          if (mounted) {
+            _imageController.forward();
+          }
+        });
+      }
+    });
+    _imageController.forward();
   }
 
   @override
   void dispose() {
     _rotateController.dispose();
     _pulseController.dispose();
+    _imageController.dispose();
+    _redGlowController.dispose();
     super.dispose();
   }
 
@@ -263,97 +302,175 @@ class _FindRosiShowcaseState extends State<FindRosiShowcase>
     return Stack(
       alignment: Alignment.center,
       children: [
-        // Rotating background circle
+        // Rotating background circle with red glow
         AnimatedBuilder(
           animation: _rotateController,
           builder: (context, child) {
-            return Transform.rotate(
-              angle: _rotateController.value * 2 * 3.14159,
+            return AnimatedBuilder(
+              animation: _redGlowController,
+              builder: (context, child) {
+                return Transform.rotate(
+                  angle: _rotateController.value * 2 * 3.14159,
+                  child: Container(
+                    width: 320,
+                    height: 320,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: RadialGradient(
+                        colors: [
+                          Colors.red.withOpacity(0.3 + 0.2 * _redGlowController.value),
+                          Colors.redAccent.withOpacity(0.2 + 0.15 * _redGlowController.value),
+                          Colors.pink.withOpacity(0.1 + 0.1 * _redGlowController.value),
+                          Colors.transparent,
+                        ],
+                        stops: const [0.0, 0.3, 0.6, 1.0],
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.red.withOpacity(0.4 + 0.3 * _redGlowController.value),
+                          blurRadius: 50 * (1 + _redGlowController.value),
+                          spreadRadius: 10 * _redGlowController.value,
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            );
+          },
+        ),
+        
+        // Main phone mockup with switching images
+        AnimatedBuilder(
+          animation: _imageController,
+          builder: (context, child) {
+            return Transform.scale(
+              scale: 0.98 + (0.04 * (1 - (_imageController.value - 0.5).abs() * 2)),
               child: Container(
-                width: 300,
-                height: 300,
+                width: 200,
+                height: 350,
                 decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: LinearGradient(
-                    colors: [
-                      Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                      Theme.of(context).colorScheme.secondary.withOpacity(0.1),
-                      Theme.of(context).colorScheme.tertiary.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(25),
+                  color: Theme.of(context).colorScheme.surface,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.red.withOpacity(0.4),
+                      blurRadius: 30,
+                      offset: const Offset(0, 15),
+                      spreadRadius: 5,
+                    ),
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.3),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(25),
+                  child: Stack(
+                    children: [
+                      // Switching images
+                      AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 800),
+                        transitionBuilder: (Widget child, Animation<double> animation) {
+                          return FadeTransition(
+                            opacity: animation,
+                            child: ScaleTransition(
+                              scale: Tween<double>(
+                                begin: 0.8,
+                                end: 1.0,
+                              ).animate(CurvedAnimation(
+                                parent: animation,
+                                curve: Curves.easeOutCubic,
+                              )),
+                              child: child,
+                            ),
+                          );
+                        },
+                        child: Container(
+                          key: ValueKey<int>(_currentImageIndex),
+                          child: Image.asset(
+                            _imageAssets[_currentImageIndex],
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            height: double.infinity,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                    colors: [
+                                      Theme.of(context).colorScheme.primary.withOpacity(0.8),
+                                      Theme.of(context).colorScheme.secondary.withOpacity(0.8),
+                                    ],
+                                  ),
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.psychology,
+                                      size: 60,
+                                      color: Colors.white,
+                                    ),
+                                    const SizedBox(height: 12),
+                                    Text(
+                                      'Find Rosi',
+                                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      'AI Assistant',
+                                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                        color: Colors.white.withOpacity(0.7),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                      
+                      // Red glow overlay for phone
+                      AnimatedBuilder(
+                        animation: _redGlowController,
+                        builder: (context, child) {
+                          return Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(25),
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [
+                                  Colors.red.withOpacity(0.1 * _redGlowController.value),
+                                  Colors.transparent,
+                                  Colors.red.withOpacity(0.2 * _redGlowController.value),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
                     ],
-                    stops: const [0.0, 0.5, 1.0],
                   ),
                 ),
               ),
             );
           },
-        ),
-        
-        // Main app mockup
-        Container(
-          width: 200,
-          height: 350,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(25),
-            color: Theme.of(context).colorScheme.surface,
-            boxShadow: [
-              BoxShadow(
-                color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
-              ),
-            ],
-            image: DecorationImage(
-              image: NetworkImage(
-                "https://pixabay.com/get/g8e9f3391a059e893bfd7aad81cf8b4750e33d8136903a328294805669a3285773d83b731fdb9f84413fc0e252ab70a1d5b4e6b6bb1ca3e25dcf957ef4453ba49_1280.jpg",
-              ),
-              fit: BoxFit.cover,
-            ),
-          ),
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(25),
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.transparent,
-                  Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                ],
-              ),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.psychology,
-                  size: 60,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  'Find Rosi',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurface,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'AI Assistant',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
-                  ),
-                ),
-              ],
-            ),
-          ),
         )
             .animate()
             .fadeIn(delay: 800.ms, duration: 1000.ms)
             .scale(begin: const Offset(0.8, 0.8))
             .slideY(begin: 0.2, end: 0),
         
-        // Floating AI indicators
+        // Enhanced floating AI indicators
         ..._buildFloatingElements(context),
       ],
     );
@@ -361,33 +478,43 @@ class _FindRosiShowcaseState extends State<FindRosiShowcase>
 
   List<Widget> _buildFloatingElements(BuildContext context) {
     return [
-      // Top right AI indicator
+      // Top right AI indicator with red glow
       Positioned(
         top: 20,
         right: 20,
         child: AnimatedBuilder(
           animation: _pulseController,
           builder: (context, child) {
-            return Transform.scale(
-              scale: 1.0 + (_pulseController.value * 0.2),
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.secondary,
-                  borderRadius: BorderRadius.circular(50),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Theme.of(context).colorScheme.secondary.withOpacity(0.3),
-                      blurRadius: 10,
+            return AnimatedBuilder(
+              animation: _redGlowController,
+              builder: (context, child) {
+                return Transform.scale(
+                  scale: 1.0 + (_pulseController.value * 0.2),
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.secondary,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.red.withOpacity(0.4 + 0.3 * _redGlowController.value),
+                          blurRadius: 15 * (1 + _redGlowController.value),
+                          spreadRadius: 2 * _redGlowController.value,
+                        ),
+                        BoxShadow(
+                          color: Theme.of(context).colorScheme.secondary.withOpacity(0.3),
+                          blurRadius: 10,
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                child: Icon(
-                  Icons.auto_awesome,
-                  color: Theme.of(context).colorScheme.onSecondary,
-                  size: 20,
-                ),
-              ),
+                    child: Icon(
+                      Icons.auto_awesome,
+                      color: Theme.of(context).colorScheme.onSecondary,
+                      size: 24,
+                    ),
+                  ),
+                );
+              },
             );
           },
         )
@@ -396,44 +523,95 @@ class _FindRosiShowcaseState extends State<FindRosiShowcase>
             .slideX(begin: 0.5, end: 0),
       ),
       
-      // Bottom left success indicator
+      // Bottom left success indicator with red glow
       Positioned(
         bottom: 40,
         left: 10,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.tertiary,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: Theme.of(context).colorScheme.tertiary.withOpacity(0.3),
-                blurRadius: 8,
+        child: AnimatedBuilder(
+          animation: _redGlowController,
+          builder: (context, child) {
+            return Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.tertiary,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.red.withOpacity(0.3 + 0.2 * _redGlowController.value),
+                    blurRadius: 12 * (1 + _redGlowController.value),
+                    spreadRadius: 1 * _redGlowController.value,
+                  ),
+                  BoxShadow(
+                    color: Theme.of(context).colorScheme.tertiary.withOpacity(0.3),
+                    blurRadius: 8,
+                  ),
+                ],
               ),
-            ],
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.check_circle,
-                color: Theme.of(context).colorScheme.onTertiary,
-                size: 16,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.check_circle,
+                    color: Theme.of(context).colorScheme.onTertiary,
+                    size: 16,
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    'Live',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onTertiary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 6),
-              Text(
-                'Live',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onTertiary,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
+            );
+          },
         )
             .animate(delay: 1400.ms)
             .fadeIn(duration: 600.ms)
             .slideX(begin: -0.5, end: 0),
+      ),
+      
+      // New floating element with red glow
+      Positioned(
+        top: 100,
+        left: 30,
+        child: AnimatedBuilder(
+          animation: _rotateController,
+          builder: (context, child) {
+            return AnimatedBuilder(
+              animation: _redGlowController,
+              builder: (context, child) {
+                return Transform.rotate(
+                  angle: _rotateController.value * 0.5,
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.red.withOpacity(0.8),
+                      borderRadius: BorderRadius.circular(10),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.red.withOpacity(0.6 + 0.4 * _redGlowController.value),
+                          blurRadius: 20 * (1 + _redGlowController.value),
+                          spreadRadius: 3 * _redGlowController.value,
+                        ),
+                      ],
+                    ),
+                    child: Icon(
+                      Icons.search,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                  ),
+                );
+              },
+            );
+          },
+        )
+            .animate(delay: 1600.ms)
+            .fadeIn(duration: 600.ms)
+            .slideY(begin: -0.3, end: 0),
       ),
     ];
   }

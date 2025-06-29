@@ -13,34 +13,10 @@ class AIConsultingDescription extends StatefulWidget {
 
 class _AIConsultingDescriptionState extends State<AIConsultingDescription>
     with TickerProviderStateMixin {
-  late AnimationController _floatController;
-  late AnimationController _pulseController;
-
-  @override
-  void initState() {
-    super.initState();
-    _floatController = AnimationController(
-      duration: const Duration(seconds: 3),
-      vsync: this,
-    )..repeat(reverse: true);
-    
-    _pulseController = AnimationController(
-      duration: const Duration(seconds: 2),
-      vsync: this,
-    )..repeat(reverse: true);
-  }
-
-  @override
-  void dispose() {
-    _floatController.dispose();
-    _pulseController.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     final isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
-    
+
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 120, horizontal: 24),
       child: isDesktop ? _buildDesktopLayout(context) : _buildMobileLayout(context),
@@ -59,7 +35,7 @@ class _AIConsultingDescriptionState extends State<AIConsultingDescription>
           const SizedBox(width: 80),
           Expanded(
             flex: 4,
-            child: _buildImageContent(context),
+            child: _buildAIConsultingServices(context),
           ),
         ],
       ),
@@ -71,7 +47,7 @@ class _AIConsultingDescriptionState extends State<AIConsultingDescription>
       children: [
         _buildTextContent(context),
         const SizedBox(height: 60),
-        _buildImageContent(context),
+        _buildAIConsultingServices(context),
       ],
     );
   }
@@ -282,140 +258,85 @@ class _AIConsultingDescriptionState extends State<AIConsultingDescription>
     );
   }
 
-  Widget _buildImageContent(BuildContext context) {
-    return Stack(
-      children: [
-        // Main consulting image
-        Container(
-          height: 500,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(24),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
-              ),
-            ],
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(24),
-            child: Image.network(
-              "https://pixabay.com/get/g4e4a5ec99cdf017344a8dd759f36c42657e2e0bbd808195046e6f3ff7044be040d37a602e37af85309dc7cc48ebe32b2ab6a8e906301c704d5e2d72aac1a79ab_1280.jpg",
-              fit: BoxFit.cover,
-              width: double.infinity,
-            ),
-          ),
-        )
-        .animate()
-        .fadeIn(duration: 800.ms, delay: 400.ms)
-        .scale(begin: const Offset(0.8, 0.8), end: const Offset(1.0, 1.0)),
-        
-        // Floating analytics indicators
-        ..._buildFloatingIndicators(context),
-      ],
-    );
-  }
-
-  List<Widget> _buildFloatingIndicators(BuildContext context) {
-    return [
-      // Growth chart indicator
-      Positioned(
-        top: 40,
-        right: -20,
-        child: AnimatedBuilder(
-          animation: _floatController,
-          builder: (context, child) {
-            return Transform.translate(
-              offset: Offset(0, _floatController.value * 10),
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.tertiary,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Theme.of(context).colorScheme.tertiary.withOpacity(0.3),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.trending_up,
-                      color: Colors.white,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      '+127% ROI',
-                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        )
-        .animate()
-        .fadeIn(duration: 600.ms, delay: 800.ms)
-        .slideX(begin: 0.5, end: 0),
-      ),
-      
-      // AI insights indicator
-      Positioned(
-        bottom: 60,
-        left: -30,
-        child: AnimatedBuilder(
-          animation: _pulseController,
-          builder: (context, child) {
-            return Transform.scale(
-              scale: 1.0 + (_pulseController.value * 0.1),
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.secondary,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Theme.of(context).colorScheme.secondary.withOpacity(0.3),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.psychology,
-                      color: Colors.white,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      'AI Insights',
-                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        )
-        .animate()
-        .fadeIn(duration: 600.ms, delay: 1000.ms)
-        .slideX(begin: -0.5, end: 0),
-      ),
+  /// Replace the crossed rectangle with a cool animated list of AI consulting services
+  Widget _buildAIConsultingServices(BuildContext context) {
+    final services = [
+      {'icon': Icons.manage_search, 'title': 'AI Strategy Consulting'},
+      {'icon': Icons.lightbulb, 'title': 'AI Readiness Assessment'},
+      {'icon': Icons.hub, 'title': 'Machine Learning Solutions'},
+      {'icon': Icons.language, 'title': 'Natural Language Processing (NLP)'},
+      {'icon': Icons.visibility, 'title': 'Computer Vision'},
+      {'icon': Icons.analytics, 'title': 'Predictive Analytics'},
+      {'icon': Icons.security, 'title': 'AI Governance & Ethics'},
+      {'icon': Icons.verified, 'title': 'Model Validation & Auditing'},
+      {'icon': Icons.support, 'title': 'AI Support & Training'},
     ];
+
+    return Container(
+      height: 400,
+      width: 340,
+      alignment: Alignment.center,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            "Our AI Consulting Services",
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).colorScheme.primary,
+              letterSpacing: 1.1,
+            ),
+            textAlign: TextAlign.center,
+          )
+              .animate()
+              .fadeIn(duration: 600.ms)
+              .slideY(begin: 0.3, end: 0),
+          const SizedBox(height: 18),
+          ...services.asMap().entries.map((entry) {
+            final index = entry.key;
+            final service = entry.value;
+            return Container(
+              margin: const EdgeInsets.symmetric(vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.9),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(
+                  color: Theme.of(context).colorScheme.primary.withOpacity(0.13),
+                  width: 1.5,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Theme.of(context).colorScheme.primary.withOpacity(0.07),
+                    blurRadius: 16,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  Icon(service['icon'] as IconData,
+                      color: Theme.of(context).colorScheme.primary, size: 22),
+                  const SizedBox(width: 13),
+                  Expanded(
+                    child: Text(
+                      service['title'] as String,
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurface,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 17,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            )
+                .animate()
+                .fadeIn(duration: 600.ms, delay: (300 + index * 80).ms)
+                .slideX(begin: 0.2, end: 0, curve: Curves.easeOutBack);
+          }),
+        ],
+      ),
+    );
   }
 }

@@ -105,29 +105,23 @@ class FooterWidget extends StatelessWidget {
         Row(
           children: [
             Container(
-              width: 50,
-              height: 50,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    colorScheme.primary,
-                    colorScheme.secondary,
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: colorScheme.primary.withOpacity(0.3),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Icon(
-                Icons.psychology_outlined,
-                color: colorScheme.onPrimary,
-                size: 28,
-              ),
+                        width: 50,
+                        height: 50,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: colorScheme.primary.withOpacity(0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        clipBehavior: Clip.antiAlias,
+                        child: Image.asset(
+                          'assets/company-logo.png', // Make sure this path is correct and your pubspec.yaml includes it
+                          fit: BoxFit.cover,
+                        ),
             ),
             const SizedBox(width: 12),
             Container(
@@ -315,10 +309,11 @@ class FooterWidget extends StatelessWidget {
         
         const SizedBox(height: 16),
         
+        // UPDATED EMAIL
         _buildContactItem(
           context,
           Icons.email_outlined,
-          'contact@implementai.de',
+          'official@implementAI-mh.de',
         )
             .animate()
             .fadeIn(delay: 500.ms)
@@ -326,10 +321,11 @@ class FooterWidget extends StatelessWidget {
         
         const SizedBox(height: 12),
         
+        // UPDATED PHONE NUMBERS
         _buildContactItem(
           context,
           Icons.phone_outlined,
-          '+49 (0) 89 1234 5678',
+          '+4917647010581  +4915165103216',
         )
             .animate()
             .fadeIn(delay: 600.ms)
@@ -337,10 +333,11 @@ class FooterWidget extends StatelessWidget {
         
         const SizedBox(height: 12),
         
+        // UPDATED LOCATION
         _buildContactItem(
           context,
           Icons.location_on_outlined,
-          'München, Deutschland',
+          'Zur Schlottareuth 22  90427 Nürnberg\nDeutschland',
         )
             .animate()
             .fadeIn(delay: 700.ms)
