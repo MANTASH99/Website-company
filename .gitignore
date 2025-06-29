@@ -63,7 +63,7 @@ app.*.map.json
 !**/ios/**/default.perspectivev3
 
 # Large assets
-**/assets/**/*.mp4
+
 **/assets/**/*.mov
 **/assets/**/*.avi
 **/assets/**/*.mkv
